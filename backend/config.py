@@ -13,9 +13,11 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:3010",
         "http://127.0.0.1:3010",
+        "http://127.0.0.1:3000",
         "https://madidijungle.com",
         "https://www.madidijungle.com",
-        "http://127.0.0.1:3000"
+        "https://madidijungle.apolodigital.lat",
+        "https://api.madidijungle.apolodigital.lat"
     ]
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
 

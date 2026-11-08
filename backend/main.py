@@ -31,22 +31,38 @@ except ImportError:
         contact
     )
 
+# Security: Disable interactive docs in production to prevent schema enumeration (OWASP A05)
+docs_url = "/docs" if settings.ENVIRONMENT.lower() != "production" else None
+redoc_url = "/redoc" if settings.ENVIRONMENT.lower() != "production" else None
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description="High-performance backend for Madidi Jungle Ecolodge (Bolivia). Powers dynamic bookings, currency conversion, WhatsApp concierge, and lead generation.",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url=docs_url,
+    redoc_url=redoc_url
 )
 
-# CORS configuration
+# Security Middleware: Strict CORS policy (OWASP A05: No wildcard with credentials)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow all origins for seamless development and cross-deployment previews
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
 )
+
+# Security Headers Middleware (OWASP Secure Headers)
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if settings.ENVIRONMENT.lower() == "production":
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+    return response
 
 # Include API Routers
 app.include_router(tours.router, prefix=settings.API_V1_STR)

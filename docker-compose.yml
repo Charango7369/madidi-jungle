@@ -11,7 +11,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-madidi_secret_2026}
       POSTGRES_DB: ${POSTGRES_DB:-madidi_jungle}
     ports:
-      - "${DB_PORT:-5436}:5432"
+      # Security: Bind strictly to loopback interface 127.0.0.1 to prevent external exposure (OWASP A05)
+      - "127.0.0.1:${DB_PORT:-5436}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro

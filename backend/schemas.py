@@ -107,6 +107,17 @@ class BookingResponse(BaseModel):
     whatsapp_direct_link: str
     created_at: datetime
 
+class BookingStatusPublicResponse(BaseModel):
+    booking_code: str
+    status: str
+    tour_code: str
+    start_date: date
+    adults_count: int
+    children_count: int
+    currency: str
+    total_amount_usd: float
+    created_at: datetime
+
 class WhatsAppLinkRequest(BaseModel):
     tour_name: Optional[str] = None
     travel_dates: Optional[str] = None

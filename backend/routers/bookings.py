@@ -1,11 +1,12 @@
-from fastapi import APIRouter, HTTPException
-import random
+import secrets
 import string
 from datetime import datetime
 import urllib.parse
+from fastapi import APIRouter, HTTPException
 from backend.schemas import (
     QuoteCalculationRequest, PriceBreakdown,
-    BookingCreateRequest, BookingResponse, BathroomType, CurrencyType
+    BookingCreateRequest, BookingResponse, BookingStatusPublicResponse,
+    BathroomType, CurrencyType
 )
 from backend.database import TOURS_STORE, BOOKINGS_STORE
 from backend.config import settings
@@ -84,15 +85,20 @@ async def create_booking(payload: BookingCreateRequest):
         currency=payload.currency
     )
 
-    # Generate unique reservation code
-    random_suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+    # Generate cryptographically secure reservation code (OWASP A02: 8 alphanumeric chars = 2.8 trillion combinations)
+    random_suffix = ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
     booking_code = f"MJ-2026-{random_suffix}"
+
+    # Sanitize user inputs to prevent CRLF & formatting injection in WhatsApp protocol
+    clean_name = payload.customer_name.replace("\r", " ").replace("\n", " ").strip()
+    clean_country = payload.country.replace("\r", " ").replace("\n", " ").strip()
+    clean_phone = payload.customer_phone.replace("\r", " ").replace("\n", " ").strip()
 
     # Prepare structured WhatsApp message
     msg = (
         f"🌿 *RESERVA MADIDI JUNGLE ECOLODGE*\n"
         f"📋 *Código:* {booking_code}\n"
-        f"👤 *Viajero:* {payload.customer_name} ({payload.country})\n"
+        f"👤 *Viajero:* {clean_name} ({clean_country})\n"
         f"🎒 *Tour:* {payload.tour_code.upper()}\n"
         f"📅 *Fecha de Inicio:* {payload.start_date.isoformat()}\n"
         f"👥 *Pasajeros:* {payload.adults_count} Adultos"
@@ -102,7 +108,7 @@ async def create_booking(payload: BookingCreateRequest):
     msg += (
         f"\n🏡 *Baño:* {payload.bathroom_type.value.capitalize()}\n"
         f"💰 *Cotización Estimada:* ${quote.total_in_usd:.2f} USD\n"
-        f"📍 *Teléfono/Email:* {payload.customer_phone} / {payload.customer_email}\n"
+        f"📍 *Teléfono/Email:* {clean_phone} / {payload.customer_email}\n"
         f"Por favor confirmen disponibilidad de cabaña."
     )
 
@@ -128,12 +134,27 @@ async def create_booking(payload: BookingCreateRequest):
         created_at=record["created_at"]
     )
 
-@router.get("/{booking_code}")
+@router.get("/{booking_code}", response_model=BookingStatusPublicResponse)
 async def get_booking_status(booking_code: str):
     """
-    Check current status of a booking.
+    Check public status of a booking safely without exposing customer PII (OWASP A01 / GDPR Art. 9).
+    Restricted strictly to itinerary and reservation status metadata.
     """
-    code = booking_code.upper()
+    code = booking_code.upper().strip()
     if code not in BOOKINGS_STORE:
         raise HTTPException(status_code=404, detail="Booking code not found")
-    return BOOKINGS_STORE[code]
+    
+    record = BOOKINGS_STORE[code]
+    payload_data = record["payload"]
+
+    return BookingStatusPublicResponse(
+        booking_code=record["booking_code"],
+        status=record["status"],
+        tour_code=payload_data["tour_code"],
+        start_date=payload_data["start_date"],
+        adults_count=payload_data["adults_count"],
+        children_count=payload_data["children_count"],
+        currency=str(payload_data.get("currency", "USD")),
+        total_amount_usd=record["total_amount_usd"],
+        created_at=record["created_at"]
+    )

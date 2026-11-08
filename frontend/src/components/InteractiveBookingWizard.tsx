@@ -83,14 +83,13 @@ export const InteractiveBookingWizard: React.FC<InteractiveBookingWizardProps> =
     e.preventDefault();
     setIsSubmitting(true);
 
+    let assignedCode = '';
+
     try {
-      // Generate booking code
-      const code = `MJ-2026-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-      
       // Attempt API call if backend is running, otherwise graceful local fallback
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8010';
       try {
-        await fetch(`${apiUrl}/api/bookings`, {
+        const response = await fetch(`${apiUrl}/api/bookings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -107,13 +106,31 @@ export const InteractiveBookingWizard: React.FC<InteractiveBookingWizardProps> =
             currency: currentCurrency,
           }),
         });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.booking_code) {
+            assignedCode = data.booking_code;
+          }
+        }
       } catch {
         // Fallback gracefully to client state
       }
 
-      setBookingSuccessCode(code);
+      if (!assignedCode) {
+        // Cryptographically secure fallback code (OWASP A02: crypto.getRandomValues)
+        const array = new Uint8Array(4);
+        crypto.getRandomValues(array);
+        const hex = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        assignedCode = `MJ-2026-${hex}`;
+      }
+
+      setBookingSuccessCode(assignedCode);
     } catch {
-      setBookingSuccessCode(`MJ-2026-${Date.now().toString().slice(-4)}`);
+      const array = new Uint8Array(4);
+      crypto.getRandomValues(array);
+      const hex = Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      setBookingSuccessCode(`MJ-2026-${hex}`);
     } finally {
       setIsSubmitting(false);
     }
