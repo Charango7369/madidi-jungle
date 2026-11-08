@@ -18,6 +18,7 @@ export const LeadMagnetModal: React.FC<LeadMagnetModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -134,10 +135,38 @@ export const LeadMagnetModal: React.FC<LeadMagnetModalProps> = ({
                 />
               </div>
 
+              {/* GDPR Privacy Consent */}
+              <div className="pt-0.5">
+                <label className="flex items-start space-x-2 text-[10px] text-sand-200/80 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={acceptedPrivacy}
+                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                    className="mt-0.5 rounded border-jungle-700 bg-jungle-900 text-emerald-500 focus:ring-emerald-400 shrink-0"
+                  />
+                  <span>
+                    I agree to receive the guide and accept the{' '}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 underline hover:text-emerald-300"
+                    >
+                      Privacy Policy (GDPR)
+                    </a>.
+                  </span>
+                </label>
+              </div>
+
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full py-3 px-4 rounded-xl bg-clay-500 hover:bg-clay-600 active:bg-clay-700 text-white font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center space-x-2 transition-all"
+                disabled={loading || !acceptedPrivacy}
+                className={`w-full py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center space-x-2 transition-all ${
+                  acceptedPrivacy && !loading
+                    ? 'bg-clay-500 hover:bg-clay-600 active:bg-clay-700 text-white'
+                    : 'bg-jungle-800 text-sand-500 cursor-not-allowed'
+                }`}
               >
                 <Download className="w-4 h-4" />
                 <span>{loading ? 'Preparing Guide...' : t.buttonText}</span>

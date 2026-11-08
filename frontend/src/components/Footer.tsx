@@ -147,11 +147,21 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
 
-        {/* Legal & SERNAP Regulatory Strip */}
+        {/* Legal, Privacy & SERNAP Regulatory Strip */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-sand-200/60">
           <div className="flex items-center space-x-2">
             <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
             <span>{t.sernapNotice}</span>
+          </div>
+
+          <div className="flex items-center space-x-3 text-[11px]">
+            <a href="/privacy" className="hover:text-emerald-400 underline transition-colors">
+              Privacy Policy (GDPR)
+            </a>
+            <span>•</span>
+            <a href="/privacy#cookies" className="hover:text-emerald-400 underline transition-colors">
+              Cookie Policy
+            </a>
           </div>
 
           <div className="flex items-center space-x-1">

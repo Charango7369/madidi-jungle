@@ -100,6 +100,8 @@ const jsonLd = {
   ]
 };
 
+import { CookieConsentBanner } from '../components/CookieConsentBanner';
+
 export default function RootLayout({
   children,
 }: {
@@ -116,6 +118,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased min-h-screen bg-jungle-950 text-sand-100 flex flex-col">
         {children}
+        <CookieConsentBanner />
       </body>
     </html>
   );

@@ -34,6 +34,7 @@ export const InteractiveBookingWizard: React.FC<InteractiveBookingWizardProps> =
   const [phone, setPhone] = useState<string>('');
   const [country, setCountry] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState<boolean>(false);
 
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -471,6 +472,31 @@ export const InteractiveBookingWizard: React.FC<InteractiveBookingWizardProps> =
                   />
                 </div>
 
+                {/* GDPR / RGPD Consent Checkbox */}
+                <div className="pt-1">
+                  <label className="flex items-start space-x-2.5 text-[11px] text-sand-200 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={acceptedPrivacy}
+                      onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                      className="mt-0.5 rounded border-jungle-700 bg-jungle-900 text-emerald-500 focus:ring-emerald-400 shrink-0"
+                    />
+                    <span className="leading-snug">
+                      I accept the{' '}
+                      <a
+                        href="/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-400 underline hover:text-emerald-300"
+                      >
+                        Privacy Policy (GDPR)
+                      </a>{' '}
+                      and consent to the processing of my contact and travel information for reservation logistics.
+                    </span>
+                  </label>
+                </div>
+
                 <div className="pt-2 flex justify-between">
                   <button
                     type="button"
@@ -481,8 +507,12 @@ export const InteractiveBookingWizard: React.FC<InteractiveBookingWizardProps> =
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="px-6 py-2.5 rounded-xl bg-clay-500 hover:bg-clay-600 active:bg-clay-700 text-white font-bold text-xs uppercase tracking-wider shadow-lg flex items-center space-x-1.5 focus:ring-2 focus:ring-clay-400"
+                    disabled={isSubmitting || !acceptedPrivacy}
+                    className={`px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg flex items-center space-x-1.5 focus:ring-2 transition-all ${
+                      acceptedPrivacy && !isSubmitting
+                        ? 'bg-clay-500 hover:bg-clay-600 active:bg-clay-700 text-white focus:ring-clay-400'
+                        : 'bg-jungle-800 text-sand-500 cursor-not-allowed'
+                    }`}
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isSubmitting ? 'Submitting...' : t.submitReservation}</span>
