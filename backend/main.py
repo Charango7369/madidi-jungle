@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 try:
     from backend.config import settings
+    from backend.limiter import limiter
     from backend.routers import (
         tours,
         accommodations,
@@ -20,6 +21,7 @@ try:
     )
 except ImportError:
     from config import settings
+    from limiter import limiter
     from routers import (
         tours,
         accommodations,
@@ -30,6 +32,8 @@ except ImportError:
         faqs,
         contact
     )
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
 # Security: Disable interactive docs in production to prevent schema enumeration (OWASP A05)
 docs_url = "/docs" if settings.ENVIRONMENT.lower() != "production" else None
@@ -42,6 +46,10 @@ app = FastAPI(
     docs_url=docs_url,
     redoc_url=redoc_url
 )
+
+# Register SlowAPI rate limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Security Middleware: Strict CORS policy (OWASP A05: No wildcard with credentials)
 app.add_middleware(

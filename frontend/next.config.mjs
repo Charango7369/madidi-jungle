@@ -18,7 +18,7 @@ const nextConfig = {
       },
     ],
   },
-  // Ensure fast build and SEO headers
+  // OWASP Recommended Security Headers & CSP
   async headers() {
     return [
       {
@@ -33,8 +33,31 @@ const nextConfig = {
             value: 'DENY',
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(self)',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' blob: data: https://www.madidijungle.com https://madidijungle.com https://images.unsplash.com",
+              "font-src 'self' data:",
+              "connect-src 'self' http://localhost:8010 https://*.apolodigital.lat https://api.madidijungle.apolodigital.lat https://wa.me",
+              "frame-ancestors 'none'",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self' https://wa.me",
+            ].join('; '),
           },
         ],
       },

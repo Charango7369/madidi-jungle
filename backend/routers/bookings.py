@@ -2,7 +2,11 @@ import secrets
 import string
 from datetime import datetime
 import urllib.parse
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+try:
+    from backend.limiter import limiter
+except ImportError:
+    from limiter import limiter
 from backend.schemas import (
     QuoteCalculationRequest, PriceBreakdown,
     BookingCreateRequest, BookingResponse, BookingStatusPublicResponse,
@@ -56,7 +60,8 @@ def calculate_quote_internal(
     )
 
 @router.post("/quote", response_model=PriceBreakdown)
-async def calculate_quote(payload: QuoteCalculationRequest):
+@limiter.limit("30/minute")
+async def calculate_quote(request: Request, payload: QuoteCalculationRequest):
     """
     Calculate an instant, dynamic quote with live currency conversion (USD/EUR/BOB)
     and exact discounts for children and bathroom preferences.
@@ -71,7 +76,8 @@ async def calculate_quote(payload: QuoteCalculationRequest):
     )
 
 @router.post("", response_model=BookingResponse)
-async def create_booking(payload: BookingCreateRequest):
+@limiter.limit("5/minute")
+async def create_booking(request: Request, payload: BookingCreateRequest):
     """
     Create a pre-booking request, generate a reservation code (e.g. MJ-2026-9A82),
     and generate an automated WhatsApp express link.

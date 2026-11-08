@@ -1,12 +1,17 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from datetime import datetime
+try:
+    from backend.limiter import limiter
+except ImportError:
+    from limiter import limiter
 from backend.schemas import ContactMessageRequest
 from backend.database import CONTACT_MESSAGES_STORE
-from datetime import datetime
 
 router = APIRouter(prefix="/contact", tags=["Contact & Direct Inquiries"])
 
 @router.post("")
-async def send_contact_message(payload: ContactMessageRequest):
+@limiter.limit("5/minute")
+async def send_contact_message(request: Request, payload: ContactMessageRequest):
     """
     Submit a general question or custom travel proposal request directly to the lodge management in Rurrenabaque.
     """

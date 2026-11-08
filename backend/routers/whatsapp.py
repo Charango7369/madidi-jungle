@@ -1,5 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 import urllib.parse
+try:
+    from backend.limiter import limiter
+except ImportError:
+    from limiter import limiter
 from backend.schemas import WhatsAppLinkRequest, WhatsAppLinkResponse
 from backend.config import settings
 from backend.database import LEADS_STORE
@@ -7,7 +11,8 @@ from backend.database import LEADS_STORE
 router = APIRouter(prefix="/whatsapp", tags=["WhatsApp Concierge"])
 
 @router.post("/generate-link", response_model=WhatsAppLinkResponse)
-async def generate_whatsapp_link(payload: WhatsAppLinkRequest):
+@limiter.limit("20/minute")
+async def generate_whatsapp_link(request: Request, payload: WhatsAppLinkRequest):
     """
     Generate an intelligent, prefilled WhatsApp click-to-chat URL with context
     about the tour, desired dates, or general questions.

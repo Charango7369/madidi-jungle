@@ -1,12 +1,17 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from datetime import datetime
+try:
+    from backend.limiter import limiter
+except ImportError:
+    from limiter import limiter
 from backend.schemas import LeadCreateRequest
 from backend.database import LEADS_STORE
-from datetime import datetime
 
 router = APIRouter(prefix="/leads", tags=["Leads & Field Guide Magnet"])
 
 @router.post("/field-guide")
-async def capture_field_guide_lead(payload: LeadCreateRequest):
+@limiter.limit("5/minute")
+async def capture_field_guide_lead(request: Request, payload: LeadCreateRequest):
     """
     Capture lead details and deliver the link to the comprehensive
     Madidi Wildlife, Birds & Primates Field Guide PDF.
