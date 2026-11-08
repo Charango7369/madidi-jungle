@@ -1,0 +1,69 @@
+name: madidi-jungle
+
+services:
+  # 1. PostgreSQL Database Service (Port 5436 to avoid conflict with existing db)
+  db:
+    image: postgres:16-alpine
+    container_name: madidi_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-madidi_secret_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-madidi_jungle}
+    ports:
+      - "${DB_PORT:-5436}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-madidi_jungle}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - madidi_network
+
+  # 2. FastAPI Backend API Service (Port 8010 to avoid conflict with existing backend on 8000)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: madidi_backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-madidi_secret_2026}@db:5432/${POSTGRES_DB:-madidi_jungle}
+      WHATSAPP_PHONE_NUMBER: ${WHATSAPP_PHONE_NUMBER:-59172288339}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3010}
+      ENVIRONMENT: production
+    ports:
+      - "${BACKEND_PORT:-8010}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - madidi_network
+
+  # 3. Next.js Frontend Service (Port 3010 to avoid conflict with port 3000)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: madidi_frontend
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8010}
+    ports:
+      - "${FRONTEND_PORT:-3010}:3000"
+    depends_on:
+      - backend
+    networks:
+      - madidi_network
+
+networks:
+  madidi_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
