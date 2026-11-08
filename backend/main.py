@@ -6,17 +6,30 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.config import settings
-from backend.routers import (
-    tours,
-    accommodations,
-    bookings,
-    whatsapp,
-    leads,
-    reviews,
-    faqs,
-    contact
-)
+try:
+    from backend.config import settings
+    from backend.routers import (
+        tours,
+        accommodations,
+        bookings,
+        whatsapp,
+        leads,
+        reviews,
+        faqs,
+        contact
+    )
+except ImportError:
+    from config import settings
+    from routers import (
+        tours,
+        accommodations,
+        bookings,
+        whatsapp,
+        leads,
+        reviews,
+        faqs,
+        contact
+    )
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
