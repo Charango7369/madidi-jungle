@@ -1,0 +1,7 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://www.madidijungle.com https://madidijungle.com https://images.unsplash.com; font-src 'self' data:; connect-src 'self' http://localhost:8010 https://*.apolodigital.lat https://api.madidijungle.apolodigital.lat https://madidi-backend-production.up.railway.app https://wa.me; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://wa.me;

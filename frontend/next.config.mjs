@@ -1,8 +1,11 @@
+const isExport = process.env.NEXT_EXPORT === 'true';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  output: isExport ? 'export' : 'standalone',
   reactStrictMode: true,
   images: {
+    unoptimized: isExport,
     remotePatterns: [
       {
         protocol: 'https',
