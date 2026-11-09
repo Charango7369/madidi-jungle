@@ -69,8 +69,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            {/* Logo & Brand Identity */}
-            <a href="#" className="flex items-center space-x-3 group focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-lg p-1">
+            {/* Logo & Brand Identity (Accessible Root Link) */}
+            <a href="/" className="flex items-center space-x-3 group focus:outline-none focus:ring-2 focus:ring-emerald-400 rounded-lg p-1" aria-label="Madidi Jungle Ecolodge - Home">
               <div className="w-10 h-10 rounded-full bg-emerald-600/30 border border-emerald-400/40 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
                 <Compass className="w-6 h-6 animate-pulse-subtle" />
               </div>

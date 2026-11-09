@@ -123,7 +123,15 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2.5 text-xs text-sand-100/80">
               <li className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Calle Comercio s/n, Rurrenabaque, Beni, Bolivia</span>
+                <a
+                  href="https://maps.google.com/?q=Calle+Comercio+Rurrenabaque+Beni+Bolivia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-emerald-400 transition-colors"
+                  title="View Madidi Jungle office on Google Maps"
+                >
+                  Calle Comercio s/n, Rurrenabaque, Beni, Bolivia
+                </a>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />

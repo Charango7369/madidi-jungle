@@ -1,4 +1,4 @@
-const isExport = process.env.NEXT_EXPORT === 'true';
+const isExport = process.env.OUTPUT_STANDALONE !== 'true';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

@@ -28,6 +28,8 @@ export const Hero: React.FC<HeroProps> = ({
         <img
           src="https://www.madidijungle.com/images/slideshow1.jpg"
           alt="Beni and Tuichi river canyon in Madidi National Park Bolivia - Madidi Jungle Ecolodge"
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover object-center filter brightness-[0.42] scale-105 transform animate-fade-in"
           fetchPriority="high"
         />
@@ -41,8 +43,9 @@ export const Hero: React.FC<HeroProps> = ({
           <span>{t.badge}</span>
         </div>
 
-        {/* Main H1 Title */}
+        {/* Main Semantic H1 Title: Brand + Targeted Intent */}
         <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15] max-w-4xl text-balance">
+          <span className="sr-only">Madidi Jungle Ecolodge — </span>
           {t.title}
         </h1>
 
